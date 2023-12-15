@@ -14,6 +14,12 @@ const PostSchema = new Schema({
     // todo: min and max lengths?
   },
 
+  subtitle: {
+    type: String,
+    required: true,
+    // todo: min and max lengths?
+  },
+
   text: {
     type: String, 
     // todo: this type will change if blog posts are written in html or rich text
@@ -36,8 +42,7 @@ const PostSchema = new Schema({
   comments: [{
     type: Schema.ObjectId,
     ref: 'Comment',
-    required: true
   }],
 });
 
-export default mongoose.model('post', PostSchema);
+export default mongoose.model('Post', PostSchema);

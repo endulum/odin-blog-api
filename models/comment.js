@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
-const PostSchema = new Schema({
+const CommentSchema = new Schema({
   post: {
     type: Schema.ObjectId,
     ref: 'Post',
     required: true
   },
 
-  username: {
+  commenterName: {
     type: String,
     required: true,
     // todo: min and max lengths?
@@ -28,4 +28,4 @@ const PostSchema = new Schema({
   },
 });
 
-export default mongoose.model('comment', CommentSchema);
+export default mongoose.model('Comment', CommentSchema);
