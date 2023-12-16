@@ -1,4 +1,4 @@
-import router from "./router/router";
+import router from "./routers/router";
 
 import express from "express";
 import morgan from "morgan";
