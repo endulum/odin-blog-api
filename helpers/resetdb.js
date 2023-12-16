@@ -1,6 +1,6 @@
-import Author from './models/author';
-import Post from './models/post';
-import Comment from './models/comment';
+import Author from '../models/author';
+import Post from '../models/post';
+import Comment from '../models/comment';
 
 import { faker } from '@faker-js/faker'
 import { loremIpsum, LoremIpsum } from 'lorem-ipsum';
@@ -90,6 +90,9 @@ async function generateContent() {
       post.comments.push(comment);
       await post.save();
     }
+
+    randomAuthor.posts.push(post);
+    await randomAuthor.save();
   }
 }
 
