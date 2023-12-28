@@ -1,11 +1,11 @@
-import router from "./routers/router";
+import apiRouter from "./routers/apiRouter";
+import loginController from "./controllers/loginController";
 
 import express from "express";
 import morgan from "morgan";
 import cors from 'cors';
 import 'dotenv/config';
 import mongoose from "mongoose";
-// import jsonwebtoken from "jsonwebtoken";
 
 mongoose.set('strictQuery', false);
 const mongoDB = process.env.MONGO;
@@ -34,7 +34,7 @@ app.delete('/', (req, res) => {
   return res.send('Received a DELETE HTTP method');
 });
 
-app.use('/', router);
+app.use('/api', apiRouter);
 
 app.listen(3000, () =>
   console.log('app listening on port 3000'),

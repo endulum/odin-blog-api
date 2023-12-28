@@ -1,25 +1,26 @@
-import Author from '../models/author';
-import Post from '../models/post';
-import Comment from '../models/comment';
 import postController from '../controllers/postController';
 import authorController from '../controllers/authorController';
+import loginController from '../controllers/loginController';
 
 import express from "express";
 
-const router = express.Router();
+const apiRouter = express.Router();
 
-router.route('/authors')
+apiRouter.route('/login')
+  .post(loginController.signToken);
+
+apiRouter.route('/authors')
   .get(authorController.getAuthors);
-router.route('/author/:id')
+apiRouter.route('/author/:id')
   .get(authorController.getAuthorById);
-router.route('/author/:id/posts')
+apiRouter.route('/author/:id/posts')
   .get(authorController.getPostByAuthor);
 
-router.route('/posts')
+apiRouter.route('/posts')
   .get(postController.getPosts);
-router.route('/post/:id')
+apiRouter.route('/post/:id')
   .get(postController.getPostById);
-router.route('/post/:id/comments')
+apiRouter.route('/post/:id/comments')
   .get(postController.getCommentsUnderPost);
 
-export default router;
+export default apiRouter;
