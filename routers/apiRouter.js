@@ -1,13 +1,9 @@
 import postController from '../controllers/postController';
 import authorController from '../controllers/authorController';
-import loginController from '../controllers/loginController';
 
 import express from "express";
 
 const apiRouter = express.Router();
-
-apiRouter.route('/login')
-  .post(loginController.signToken);
 
 apiRouter.route('/authors')
   .get(authorController.getAuthors);

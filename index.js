@@ -1,4 +1,5 @@
 import apiRouter from "./routers/apiRouter";
+import authRouter from "./routers/authRouter";
 import loginController from "./controllers/loginController";
 
 import express from "express";
@@ -33,6 +34,8 @@ app.put('/', (req, res) => {
 app.delete('/', (req, res) => {
   return res.send('Received a DELETE HTTP method');
 });
+
+app.use('/auth', authRouter);
 
 app.use('/api', apiRouter);
 
