@@ -14,7 +14,7 @@ const AuthorSchema = new Schema({
     // todo: min and max lengths?
   },
 
-  fullName: {
+  penName: {
     type: String,
     required: true,
   },

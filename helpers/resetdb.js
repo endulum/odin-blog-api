@@ -1,6 +1,7 @@
 import Author from '../models/author';
 import Post from '../models/post';
 import Comment from '../models/comment';
+import Invite from '../models/invite';
 
 import { faker } from '@faker-js/faker'
 import { loremIpsum, LoremIpsum } from 'lorem-ipsum';
@@ -24,6 +25,7 @@ async function main() {
   await emptyAuthors();
   await emptyPosts();
   await emptyComments();
+  await emptyInvites();
   await generateContent();
   console.log(`Nothing left to do, closing connection.`);
   mongoose.connection.close();
@@ -53,12 +55,24 @@ async function emptyComments() {
   }
 }
 
+async function emptyInvites() {
+  const invites = await Invite.find({}).exec();
+  if (invites.length > 0) {
+    console.log(`Found ${invites.length} invites. Deleting...`);
+    await Invite.deleteMany({});
+  }
+}
+
 async function generateContent() {
   const pass = await bcryptjs.hash('coolPassword', 10);
   const randomAuthor = await Author.create({
     username: 'adminAuthor',
     password: pass,
-    fullName: faker.person.fullName()
+    penName: faker.person.fullName().split(' ').join('_')
+  });
+
+  await Invite.create({
+    code: faker.finance.accountNumber({ length: 16 })
   });
 
   const lorem = new LoremIpsum({
@@ -77,7 +91,8 @@ async function generateContent() {
       author: randomAuthor,
       title: lorem.generateWords(random(6, 2)),
       subtitle: lorem.generateSentences(1),
-      text: lorem.generateParagraphs(random(10, 5))
+      text: lorem.generateParagraphs(random(10, 5)),
+      isVisible: i%2==0 ? false : true
     });
 
     for (let j = 0; j < i; j++) {

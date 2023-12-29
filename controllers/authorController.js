@@ -30,7 +30,7 @@ authorController.getAuthorById = asyncHandler(async (req, res, next) => {
   }
 });
 
-authorController.getPostByAuthor = asyncHandler(async (req, res, next) => {
+authorController.getPostsByAuthor = asyncHandler(async (req, res, next) => {
   const author = await findAuthorById(req.params.id, true);
   if (author === null) {
     const err = new Error('Author not found.');

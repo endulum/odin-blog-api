@@ -24,20 +24,20 @@ loginController.signToken = asyncHandler(async (req, res, next) => {
   res.json({ accessToken });
 });
 
-// loginController.authenticateToken = function (req, res, next) {
-//   const bearerHeader = req.headers['authorization'];
-//   const bearerToken = bearerHeader && bearerHeader.split(' ')[1];
-//   if (!bearerToken) return res.sendStatus(401);
+loginController.authenticateToken = function (req, res, next) {
+  const bearerHeader = req.headers['authorization'];
+  const bearerToken = bearerHeader && bearerHeader.split(' ')[1];
+  if (!bearerToken) return res.sendStatus(401);
 
-//   jsonwebtoken.verify(
-//     bearerToken,
-//     process.env.ACCESS_TOKEN_SECRET,
-//     (err, user) => {
-//       if (err) return res.sendStatus(403);
-//       req.user = user;
-//       next();
-//     }
-//   )
-// }
+  jsonwebtoken.verify(
+    bearerToken,
+    process.env.ACCESS_TOKEN_SECRET,
+    (err, user) => {
+      if (err) return res.sendStatus(403);
+      req.username = username;
+      next();
+    }
+  )
+}
 
 export default loginController;

@@ -14,7 +14,7 @@ apiRouter.route('/authors')
 apiRouter.route('/author/:id')
   .get(authorController.getAuthorById);
 apiRouter.route('/author/:id/posts')
-  .get(authorController.getPostByAuthor);
+  .get(authorController.getPostsByAuthor);
 
 apiRouter.route('/posts')
   .get(postController.getPosts);
