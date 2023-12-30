@@ -5,18 +5,23 @@ const AuthorSchema = new Schema({
   username: {
     type: String,
     required: true,
-    // todo: min and max lengths?
+    minLength: 2,
+    maxLength: 32
+    // can only contain letters and numbers
   },
 
   password: {
     type: String,
     required: true,
-    // todo: min and max lengths?
+    minLength: 8
   },
 
   penName: {
     type: String,
     required: true,
+    minLength: 2,
+    maxLength: 64
+    // can contain letters, numbers, spaces, periods, apostrophes
   },
 
   posts: [{
