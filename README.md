@@ -1,33 +1,59 @@
-### TOP: Blog (API)
-API-only backend for a blog setup.
+## TOP: Blog (API)
+RESTful API for a blog setup.
 
-[Blog CMS](#)[^1]
-
-[Blog Frontend](#)[^2]
-
-### API Design
-- Unprotected (public) GET routes:
-  - `api/authors`: gets an array containing all authors.
-  - `api/author/{id or pen name}`: gets a particular author by database ID or by username.
-  - `api/author/{id or pen name}/posts`: gets an array containing all posts by a particular author.
-  - `api/posts`: gets an array containing all posts.
-  - `api/post/{id}`: gets a particular post by database ID.
-  - `api/post/{id}/comments`: gets an array of all comments under a particular post.
-- Unprotected (public) POST routes:
-  - `api/post/{id}/comments`: takes in a name, email, and text, and creates a new comment under a particular post with the details provided.
-  - `auth/signup`: takes in a username, pen name, password, and invitation code. If all fields are properly filled and the invitation code is unclaimed, this creates a new account in the database using the details provided, and sets an invite code's claimed status to "true".
-  - `auth/login`: takes in a username and password. If all fields are properly filled and the username + password combo is valid, this creates a JWT token and stores it in the client's localStorage.
-- Protected POST routes:
-  - `api/posts`: takes in a post title, subtitle, text, and visibility. If the client is authorized, this creates a new post under their name with the details provided.
-- Protected PUT routes:
-  - `api/author/{id or pen name}`: takes in a username, pen name, and password. If the client is authorized and the particular author is the current user, this edits the author details with the details provided.
-  - `api/post/{id}`: takes in a post title, subtitle, text, and visibility. If the client is authorized and the particular post belongs to the current user, this edits the particular post with the details provided.
-- Protected DELETE routes:
-  - `api/post/{id}`: if the client is authorized and the particular post belongs to the current user, this deletes the post from the database.
-- Inaccessible routes:
-  - POST `/api/authors`: creates a new author account. Only the `auth/signup` route should handle this.
+[Blog Frontend](#)[^1]
 
 [Section](https://www.theodinproject.com/lessons/nodejs-blog-api)
 
-[^1]: todo: make the CMS repo and link it here
-[^2]: todo: make the frontend repo and link it here
+### API Structure
+`/auth/login`
+- **POST:** Creates and returns a JWT token signed with an author username, if values provided by the request body are correct for that author account.
+
+`/api/authors`
+- **GET:** Returns an array of author objects.
+- **POST:** Creates an author account using values provided by the request body:
+  - `username`
+  - `password`
+  - `confirmPassword`
+  - `penName`
+  - `inviteCode`
+
+`/api/author/:id`
+- **GET:** Returns the author object, with a partially populated array of posts.
+- **PUT:** Requires authorization and for the author account to belong to the authorized user. Edits the author object using values provided by the request body:
+  - `penName`
+  - `bio`
+- **DELETE:** Requires authorization and for the author account to belong to the authorized user. Deletes the author object when the correct password is input:
+  - `password`
+
+`/api/author/:id/posts`
+- **GET:** Returns an array of post objects whose author is this author.
+
+`/api/posts`
+- **GET:** Returns an array of post objects.
+- **POST:** Requires authorization. Creates a new post authored by the authorized user using values provided by the request body:
+  - `title`
+  - `subtitle`
+  - `text`
+
+`/api/post/:id`
+- **GET:** Returns the post object, with a populated array of comment objects.
+- **PUT:** Requires authorization and for the post to belong to the authorized user. Edits the post using values provided by the request body:
+  - `title`
+  - `subtitle`
+  - `text`
+- **DELETE:** Requires authorization and for the post to belong to the authorized user. Deletes the post when the correct password is input:
+  - `password`
+
+`/api/post/:id/comments`
+- **GET:** Returns an array of comment objects under this post.
+- **POST:** Creates a new comment under this post using values provided by the request body:
+  - `commenterName`
+  - `commentText`
+
+`/api/comment/:id`
+- **DELETE:** Requires authorization and for the post this comment is under to belong to the authorized user. Deletes the comment when the correct password is input:
+  - `password`
+
+
+[^1]: todo: make the frontend repo and link it here
