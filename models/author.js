@@ -24,6 +24,11 @@ const AuthorSchema = new Schema({
     // can contain letters, numbers, spaces, periods, apostrophes
   },
 
+  bio: {
+    type: String,
+    default: ''
+  },
+
   posts: [{
     type: Schema.ObjectId,
     ref: 'Post',

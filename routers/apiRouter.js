@@ -8,7 +8,9 @@ const apiRouter = express.Router();
 apiRouter.route('/authors')
   .get(authorController.getAuthors);
 apiRouter.route('/author/:id')
-  .get(authorController.getAuthorById);
+  .get(authorController.getAuthorById)
+  .post(authorController.editAuthorById)
+  .delete(authorController.deleteAuthorById);
 apiRouter.route('/author/:id/posts')
   .get(authorController.getPostsByAuthor);
 
