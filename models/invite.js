@@ -7,15 +7,16 @@ const InviteSchema = new Schema({
     required: true
   },
 
-  isClaimed: {
-    type: Boolean,
-    required: true,
-    default: false
+  generatedBy: {
+    type: Schema.ObjectId,
+    ref: 'Author',
+    required: true
   },
 
   claimedBy: {
-    type: String,
-    default: ''
+    type: Schema.ObjectId,
+    ref: 'Invitee',
+    default: null
   }
 });
 

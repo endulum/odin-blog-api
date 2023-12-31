@@ -1,11 +1,13 @@
 import Invite from '../models/invite';
 import Author from '../models/author';
+import loginController from './loginController';
 
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from 'express-validator';
 import bcryptjs from 'bcryptjs';
 import jsonwebtoken from "jsonwebtoken";
 import bcrypt from 'bcryptjs/dist/bcrypt';
+import { faker } from '@faker-js/faker';
 import 'dotenv/config';
 
 const inviteController = {};
@@ -55,30 +57,55 @@ inviteController.checkCode = [
     }).withMessage('This invite code does not exist.').bail()
     .custom(async (value) => {
       const code = await Invite.findOne({ code: value });
-      return !code.isClaimed ? true : Promise.reject()
+      return code.claimedBy === null ? true : Promise.reject()
     }).withMessage('This invite code has already been claimed.')
     .escape(),
 
   asyncHandler(async (req, res, next) => {
     const errorsArray = validationResult(req).array();
     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-    // claim the code
-    const code = await Invite.findOne({ code: req.body.code });
-    code.claimedBy = req.body.username;
-    code.isClaimed = true;
-    await code.save();
     // create the account
     const hashedPassword = await bcryptjs.hash(req.body.password, 10);
-    await Author.create({
+    const newAuthor = await Author.create({
       username: req.body.username,
       password: hashedPassword,
       penName: req.body.penName
     });
+    console.log(newAuthor);
+    // claim the code
+    const code = await Invite.findOne({ code: req.body.code });
+    code.claimedBy = newAuthor;
+    await code.save();
     // todo: change this...
     res.send('Success - go log in!');
   })
 ];
 
 // todo: controller function for generating invite codes
+inviteController.generateCode = [
+  loginController.authenticateToken,
+  asyncHandler(async (req, res, next) => {
+    async function doesCodeExist(code) {
+      const existingCode = await Invite.findOne({ code: code });
+      return existingCode !== null
+    };
+
+    let newCode;
+    do {
+      newCode = faker.finance.accountNumber({ length: 16 })
+    } while (await doesCodeExist(newCode));
+
+    const thisAuthor = await Author.findOne({ username: req.user.username });
+
+    await Invite.create({
+      code: newCode,
+      generatedBy: thisAuthor,
+    });
+
+    res.json({
+      code: newCode
+    });
+  })
+]
 
 export default inviteController;

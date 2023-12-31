@@ -71,9 +71,9 @@ async function generateContent() {
     penName: faker.person.fullName().split(' ').join('_')
   });
 
-  await Invite.create({
-    code: faker.finance.accountNumber({ length: 16 })
-  });
+  // await Invite.create({
+  //   code: faker.finance.accountNumber({ length: 16 })
+  // });
 
   const lorem = new LoremIpsum({
     sentencesPerParagraph: {

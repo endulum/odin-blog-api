@@ -11,4 +11,7 @@ authRouter.route('/signup')
 authRouter.route('/login')
   .post(loginController.signToken);
 
+authRouter.route('/invite')
+  .post(inviteController.generateCode);
+
 export default authRouter;
