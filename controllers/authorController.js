@@ -3,17 +3,15 @@ import Post from '../models/post';
 import Comment from '../models/comment';
 import loginController from './loginController';
 
+import mongoose from 'mongoose';
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs/dist/bcrypt';
 
-async function findAuthorById(id, populatePosts = false) {
+async function findAuthor(id) {
   let author;
-  try { 
-    if (populatePosts) author = await Author.findById(id).populate('posts').exec();
-    else author = await Author.findById(id).exec();
-  }
-  catch { author = null }
+  if (mongoose.isValidObjectId(id)) author = await Author.findById(id).exec();
+  else author = await Author.findOne({ username: id }).exec();
   return author;
 }
 
@@ -21,29 +19,57 @@ const authorController = {}
 
 authorController.getAuthors = asyncHandler(async (req, res, next) => {
   const authors = await Author.find({}).exec();
-  res.send(authors);
+  res.json(authors.map(author => {
+    return {
+      username: author.username,
+      penName: author.penName,
+      bio: author.bio,
+      postIds: author.posts
+    }
+  }));
 });
 
 authorController.getAuthorById = asyncHandler(async (req, res, next) => {
-  const author = await findAuthorById(req.params.id);
-  if (author === null) {
+  const author = await findAuthor(req.params.id);
+  if (author) return res.json({
+    username: author.username,
+    penName: author.penName,
+    bio: author.bio,
+    posts: author.posts
+  });
+  else {
     const err = new Error('Author not found.');
     err.status = 404;
-    return next(err);
-  } else {
-    res.send(author);
-  }
+    return next(err); 
+  } // todo: change error html to json
 });
 
 authorController.getPostsByAuthor = asyncHandler(async (req, res, next) => {
-  const author = await findAuthorById(req.params.id, true);
-  if (author === null) {
+  const author = await findAuthor(req.params.id, true);
+  if (author) {
+    const posts = await Promise.all(author.posts.map(async postId => {
+      const post = await Post.findById(postId).populate('comments').exec();
+      return {
+        author: author.username,
+        title: post.title,
+        subtitle: post.subtitle,
+        text: post.text,
+        timestamp: post.timestamp,
+        comments: post.comments.map(comment => {
+          return {
+            commenter: comment.commenterName,
+            text: comment.text,
+            timestamp: comment.timestamp
+          }
+        })
+      }
+    }));
+    res.json({ posts });
+  } else {
     const err = new Error('Author not found.');
     err.status = 404;
-    return next(err);
-  } else {
-    res.send(author.posts);
-  }
+    return next(err); 
+  } // todo: change error html to json
 });
 
 authorController.editAuthorById = [
@@ -63,7 +89,7 @@ authorController.editAuthorById = [
   asyncHandler(async (req, res, next) => {
     const errorsArray = validationResult(req).array();
     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-    const author = await findAuthorById(req.params.id);
+    const author = await findAuthor(req.params.id);
     if (author === null) {
       const err = new Error('Author not found.');
       err.status = 404;
@@ -88,16 +114,16 @@ authorController.deleteAuthorById = [
   body('password')
     .trim()
     .custom(async (value, { req }) => {
-      const author = await findAuthorById(req.params.id);
+      const author = await findAuthor(req.params.id);
       return author !== null ? true : Promise.reject();
     }).withMessage('Author not found.').bail()
-    .custom(async (value, {req}) => {
-      const author = await findAuthorById(req.params.id);
+    .custom(async (value, { req }) => {
+      const author = await findAuthor(req.params.id);
       return author.username === req.user.username ? true : Promise.reject();
     }).withMessage('You are not this author.').bail()
     .isLength({ min: 1 }).withMessage('Please input a password.').bail()
     .custom(async (value, { req }) => {
-      const author = await findAuthorById(req.params.id);
+      const author = await findAuthor(req.params.id);
       const match = await bcrypt.compare(value, author.password);
       return match ? true : Promise.reject();
     }).withMessage('Incorrect password.')
@@ -106,7 +132,7 @@ authorController.deleteAuthorById = [
   asyncHandler(async (req, res, next) => {
     const errorsArray = validationResult(req).array();
     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-    const author = await findAuthorById(req.params.id);
+    const author = await findAuthor(req.params.id);
     author.posts.forEach(async postId => {
       const post = await Post.findById(postId);
       // console.log(post);
