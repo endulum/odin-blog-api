@@ -95,11 +95,12 @@ authorController.editAuthorById = [
       err.status = 404;
       return next(err);
     } else if (author.username !== req.user.username) {
-      return res.send('You\'re not this user.')
+      return res.send('You are not this author.')
     } else {
       author.penName = req.body.penName;
       author.bio = req.body.bio;
       await author.save();
+      // todo: change this
       res.send('Success - go look at the database')
     }
   })
@@ -135,15 +136,14 @@ authorController.deleteAuthorById = [
     const author = await findAuthor(req.params.id);
     author.posts.forEach(async postId => {
       const post = await Post.findById(postId);
-      // console.log(post);
       post.comments.forEach(async commentId => {
         const comment = await Comment.findById(commentId);
-        // console.log(comment);
         await Comment.deleteOne(comment)
       })
       await Post.deleteOne(post);
     });
     await Author.deleteOne(author);
+    // todo: change this
     res.send('Success - go look at the database');
   })
 ]

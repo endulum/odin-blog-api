@@ -12,7 +12,7 @@ import 'dotenv/config';
 
 const inviteController = {};
 
-inviteController.checkCode = [
+inviteController.redeemCode = [
   // todo: how can we deal with backslashes, apostrophes, etc in validation?
   // won't they show up weird on the other end?
 
@@ -81,7 +81,6 @@ inviteController.checkCode = [
   })
 ];
 
-// todo: controller function for generating invite codes
 inviteController.generateCode = [
   loginController.authenticateToken,
   asyncHandler(async (req, res, next) => {
@@ -102,9 +101,7 @@ inviteController.generateCode = [
       generatedBy: thisAuthor,
     });
 
-    res.json({
-      code: newCode
-    });
+    res.json({ code: newCode });
   })
 ]
 

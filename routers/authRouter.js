@@ -5,9 +5,6 @@ import express from "express";
 
 const authRouter = express.Router();
 
-authRouter.route('/signup')
-  .post(inviteController.checkCode);
-
 authRouter.route('/login')
   .post(loginController.signToken);
 
