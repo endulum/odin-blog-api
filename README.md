@@ -42,12 +42,12 @@ RESTful API for a blog setup.
   - `text`
 
 `/api/post/:id`
-[ ] **GET:** Returns the post object, with a populated array of comment objects.
-[ ] **PUT:** Requires authorization and for the post to belong to the authorized user. Edits the post using values provided by the request body:
+[x] **GET:** Returns the post object, with a populated array of comment objects.
+[x] **PUT:** Requires authorization and for the post to belong to the authorized user. Edits the post using values provided by the request body:
   - `title`
   - `subtitle`
   - `text`
-- **DELETE:** Requires authorization and for the post to belong to the authorized user. Deletes the post when the correct password is input:
+[x] **DELETE:** Requires authorization and for the post to belong to the authorized user. Deletes the post when the correct password is input:
   - `password`
 
 `/api/post/:id/comments`

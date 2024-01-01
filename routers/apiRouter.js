@@ -19,8 +19,10 @@ apiRouter.route('/author/:id/posts')
 apiRouter.route('/posts')
   .post(postController.newPost)
   .get(postController.getPosts);
-// apiRouter.route('/post/:id')
-//   .get(postController.getPostById);
+apiRouter.route('/post/:id')
+  .get(postController.getPostById)
+  .put(postController.editPost)
+  .delete(postController.deletePost);
 // apiRouter.route('/post/:id/comments')
 //   .get(postController.getCommentsUnderPost);
 
