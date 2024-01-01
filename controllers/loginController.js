@@ -35,8 +35,12 @@ loginController.signToken = [
     const errorsArray = validationResult(req).array();
     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
     // sign and send the token
+    const existingAuthor = await Author.findOne({ username: req.body.username });
     const accessToken = jsonwebtoken.sign(
-      { username: req.body.username }, // wait, is it a bad idea to grab the username straight from the body?
+      { 
+        username: req.body.username, 
+        userId: existingAuthor._id
+      }, // wait, is it a bad idea to grab the username straight from the body?
       process.env.ACCESS_TOKEN_SECRET
     );
     res.json({ accessToken });

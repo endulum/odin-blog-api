@@ -35,8 +35,8 @@ RESTful API for a blog setup.
 [x] **GET:** Returns an array of fully populated post objects whose author is this author.
 
 `/api/posts`
-[ ] **GET:** Returns an array of post objects.
-[ ] **POST:** Requires authorization. Creates a new post authored by the authorized user using values provided by the request body:
+[x] **GET:** Returns an array of post objects.
+[x] **POST:** Requires authorization. Creates a new post authored by the authorized user using values provided by the request body:
   - `title`
   - `subtitle`
   - `text`

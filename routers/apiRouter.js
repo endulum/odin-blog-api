@@ -17,10 +17,11 @@ apiRouter.route('/author/:id/posts')
   .get(authorController.getPostsByAuthor);
 
 apiRouter.route('/posts')
+  .post(postController.newPost)
   .get(postController.getPosts);
-apiRouter.route('/post/:id')
-  .get(postController.getPostById);
-apiRouter.route('/post/:id/comments')
-  .get(postController.getCommentsUnderPost);
+// apiRouter.route('/post/:id')
+//   .get(postController.getPostById);
+// apiRouter.route('/post/:id/comments')
+//   .get(postController.getCommentsUnderPost);
 
 export default apiRouter;
