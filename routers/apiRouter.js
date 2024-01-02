@@ -3,6 +3,7 @@ import authorController from '../controllers/authorController';
 
 import express from "express";
 import inviteController from '../controllers/inviteController';
+import commentController from '../controllers/commentController';
 
 const apiRouter = express.Router();
 
@@ -26,5 +27,8 @@ apiRouter.route('/post/:id')
 apiRouter.route('/post/:id/comments')
   .get(postController.getCommentsUnderPost)
   .post(postController.newComment);
+
+apiRouter.route('/comment/:id')
+  .delete(commentController.deleteComment);
 
 export default apiRouter;

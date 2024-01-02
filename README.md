@@ -57,7 +57,7 @@ RESTful API for a blog setup.
   - `commentText`
 
 `/api/comment/:id`
-[ ] **DELETE:** Requires authorization and for the post this comment is under to belong to the authorized user. Deletes the comment when the correct password is input:
+[x] **DELETE:** Requires authorization and for the post this comment is under to belong to the authorized user. Deletes the comment when the correct password is input:
   - `password`
 
 
