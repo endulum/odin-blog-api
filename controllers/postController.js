@@ -49,7 +49,7 @@ postController.newPost = [
       return existingPost === null ? true : Promise.reject()
     }).withMessage('A post with this title already exists.')
     .escape(),
-  
+
   body('subtitle')
     .trim()
     .isLength({ min: 1 }).withMessage('Please enter a subtitle.').bail()
@@ -126,7 +126,7 @@ postController.editPost = [
       } else return true;
     }).withMessage('A post with this title already exists.')
     .escape(),
-  
+
   body('subtitle')
     .trim()
     .isLength({ min: 1 }).withMessage('Please enter a subtitle.').bail()
@@ -137,7 +137,7 @@ postController.editPost = [
     .trim()
     .isLength({ min: 1 }).withMessage('Cannot submit a blank post.')
     .escape(),
-  
+
   asyncHandler(async (req, res, next) => {
     const errorsArray = validationResult(req).array();
     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
@@ -172,28 +172,70 @@ postController.deletePost = [
     }).withMessage('Incorrect password.')
     .escape(),
 
-    asyncHandler(async (req, res, next) => {
-      const errorsArray = validationResult(req).array();
-      if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-      const post = await findPost(req.params.id);
-      post.comments.forEach(async commentId => {
-        const comment = await Comment.findById(commentId);
-        await Comment.deleteOne(comment)
-      });
-      await Post.deleteOne(post);
-      res.send('Success - go look at the database');
-    })
+  asyncHandler(async (req, res, next) => {
+    const errorsArray = validationResult(req).array();
+    if (errorsArray.length > 0) return res.json({ errors: errorsArray });
+    const post = await findPost(req.params.id);
+    post.comments.forEach(async commentId => {
+      const comment = await Comment.findById(commentId);
+      await Comment.deleteOne(comment)
+    });
+    await Post.deleteOne(post);
+    res.send('Success - go look at the database');
+  })
 ]
 
-// postController.getCommentsUnderPost = asyncHandler(async (req, res, next) => {
-//   const post = await findPostById(req.params.id, true);
-//   if (post === null) {
-//     const err = new Error('Post not found.');
-//     err.status = 404;
-//     return next(err);
-//   } else {
-//     res.send(post.comments);
-//   }
-// });
+postController.getCommentsUnderPost = asyncHandler(async (req, res, next) => {
+  const post = await findPost(req.params.id);
+  if (post === null) {
+    const err = new Error('Post not found.');
+    err.status = 404;
+    return next(err);
+  } else {
+    const commentJSON = await Promise.all(post.comments.map(async commentId => {
+      const comment = await Comment.findById(commentId);
+      return {
+        commentId,
+        commenterName: comment.commenterName,
+        text: comment.text,
+        timestamp: comment.timestamp
+      }
+    }));
+
+    res.json(commentJSON);
+  }
+});
+
+postController.newComment = [
+  body('commenterName')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter your name.').bail()
+    .isLength({ min: 2, max: 32 }).withMessage('Commenter names must be between 2 and 32 characters long.')
+    .matches(/^[A-Za-z0-9 .,&-]+$/).withMessage('Commenter name contains invalid characters.')
+    .escape(),
+
+  body('text')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter a comment.').bail()
+    .isLength({ min: 2, max: 512 }).withMessage('Comments must be between 2 and 512 characters long.')
+    .escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errorsArray = validationResult(req).array();
+    const post = await findPost(req.params.id);
+    if (post === null) errorsArray.push({ msg: 'Post not found.' });
+    if (errorsArray.length > 0) return res.json({ errors: errorsArray });
+    const newComment = await Comment.create({
+      post: post._id,
+      commenterName: req.body.commenterName,
+      text: req.body.text
+    });
+
+    post.comments.push(newComment._id);
+    await post.save();
+
+    res.send('Success - go look at database');
+  })
+];
 
 export default postController;

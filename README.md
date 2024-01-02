@@ -51,8 +51,8 @@ RESTful API for a blog setup.
   - `password`
 
 `/api/post/:id/comments`
-[ ] **GET:** Returns an array of comment objects under this post.
-[ ] **POST:** Creates a new comment under this post using values provided by the request body:
+[x] **GET:** Returns an array of comment objects under this post.
+[x] **POST:** Creates a new comment under this post using values provided by the request body:
   - `commenterName`
   - `commentText`
 

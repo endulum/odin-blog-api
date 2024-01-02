@@ -23,7 +23,8 @@ apiRouter.route('/post/:id')
   .get(postController.getPostById)
   .put(postController.editPost)
   .delete(postController.deletePost);
-// apiRouter.route('/post/:id/comments')
-//   .get(postController.getCommentsUnderPost);
+apiRouter.route('/post/:id/comments')
+  .get(postController.getCommentsUnderPost)
+  .post(postController.newComment);
 
 export default apiRouter;
