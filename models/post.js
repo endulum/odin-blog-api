@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const  PostSchema = new Schema({
   author: { type: Schema.ObjectId, ref: 'Author' },
-  title: { type: String, required: true, minLength: 2, maxLength: 32 },
-  subtitle: { type: String, required: true, minLength: 2, maxLength: 64 },
-  content: { type: String, required: true, minLength: 2, maxLength: 2048 },
+  title: { type: String, required: true, minLength: 2, maxLength: 64 },
+  subtitle: { type: String, required: true, minLength: 2, maxLength: 128 },
+  content: { type: String, required: true, minLength: 2, maxLength: 4096 },
   datePosted: { type: Date, default: () => Date.now(), immutable: true },
   lastEdited: { type: Date },
   comments: [{ type: Schema.ObjectId, ref: 'Comment' }]
