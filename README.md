@@ -32,6 +32,7 @@ RESTful API for a blog setup.
 ```
 `GET /api/authors` returns an array of author objects. Acceptable query keys are:
 - `?displayName=Bob`: filters for any authors whose `displayName` string includes the value `Bob`
+- `?userName=Bob`: filters for any authors whose `userName` string includes the value `Bob`
 - `?sortBy=dateJoined`: sorts the array by `dateJoined`. Other acceptable sort values are `userName`, `displayName`, and `postCount`.
 - `?sortDirection=ascending`: In conjunction with the `sortBy` query, determines whether the array is sorted in `ascending` or `descending` values.
 - `?limit=3`: limits the array length to the first 3 results of the query.
