@@ -117,8 +117,8 @@ Also, editing a post object will update its `lastEdited` to the current date.
 {
   "id": "65926be07b9bf849098c0bf2",
   "postId": "65926bdf7b9bf849098c0be8",
-  "name": "Some Commentator",
-  "text": "This is a comment. Hopefully it's a nice one.",
+  "commentBy": "Some Commentator",
+  "commentText": "This is a comment. Hopefully it's a nice one.",
   "datePosted": "2024-01-01T07:38:07.947+00:00"
 }
 ```
