@@ -1,34 +1,28 @@
-import postController from '../controllers/postController';
-import authorController from '../controllers/authorController';
-
 import express from "express";
-import inviteController from '../controllers/inviteController';
-import commentController from '../controllers/commentController';
 
 const apiRouter = express.Router();
 
+apiRouter.route('/login')
+  .post(); // returns an auth token for use with protected routes
+
 apiRouter.route('/authors')
-  .get(authorController.getAuthors)
-  .post(inviteController.redeemCode);
+  .get(); // returns array of authors
+
 apiRouter.route('/author/:id')
-  .get(authorController.getAuthorById)
-  .post(authorController.editAuthorById)
-  .delete(authorController.deleteAuthorById);
-apiRouter.route('/author/:id/posts')
-  .get(authorController.getPostsByAuthor);
+  .get() // returns an author by id
+  .put() // edits an author by id, protected
+  .delete(); // deletes an author by id, protected
 
 apiRouter.route('/posts')
-  .post(postController.newPost)
-  .get(postController.getPosts);
+  .get(); // returns an array of posts
+
 apiRouter.route('/post/:id')
-  .get(postController.getPostById)
-  .put(postController.editPost)
-  .delete(postController.deletePost);
-apiRouter.route('/post/:id/comments')
-  .get(postController.getCommentsUnderPost)
-  .post(postController.newComment);
+  .get() // returns a post by id
+  .put() // edits a post by id, protected
+  .delete(); // deletes a post by id, protected
 
 apiRouter.route('/comment/:id')
-  .delete(commentController.deleteComment);
+  .get() // returns a comment by id
+  .delete(); // deletes a comment by id, protected
 
 export default apiRouter;
