@@ -1,7 +1,6 @@
 import Author from '../models/author';
 import Post from '../models/post';
 import Comment from '../models/comment';
-import Invite from '../models/invite';
 
 import { faker } from '@faker-js/faker'
 import { loremIpsum, LoremIpsum } from 'lorem-ipsum';
@@ -48,7 +47,7 @@ async function generateContent() {
 
   console.log('Creating dummy content...');
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 2; i++) {
     const dummyPass = await bcryptjs.hash(dummyPassPlain, 10);
     const dummyFirstName = faker.person.firstName();
     const dummyLastName = faker.person.lastName();

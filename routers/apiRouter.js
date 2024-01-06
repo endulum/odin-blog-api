@@ -20,11 +20,13 @@ apiRouter.route('/author/:id')
   .get(authorController.getAuthor)
   .put(
     authController.authenticateToken, 
-    authorController.authorizeAuthor
+    authorController.authorizeAuthor,
+    authorController.editAuthor
   )
   .delete(
     authController.authenticateToken, 
-    authorController.authorizeAuthor
+    authorController.authorizeAuthor,
+    authorController.deleteAuthor
   );
 
 apiRouter.route('/posts')
