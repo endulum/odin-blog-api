@@ -14,6 +14,26 @@ const sendErrorsIfAny = asyncHandler(async (req, res, next) => {
 
 const authController = {};
 
+authController.authenticateToken = function (req, res, next) {
+  const bearerHeader = req.headers['authorization'];
+  const bearerToken = bearerHeader && bearerHeader.split(' ')[1];
+  if (!bearerToken) return res.sendStatus(401);
+
+  jsonwebtoken.verify(
+    bearerToken,
+    process.env.ACCESS_TOKEN_SECRET,
+    (err, user) => {
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      return next();
+    }
+  )
+};
+
+authController.checkToken = asyncHandler(async (req, res, next) => {
+  res.json(req.user);
+});
+
 authController.signToken = [
   body('userName')
     .trim()
@@ -49,20 +69,6 @@ authController.signToken = [
   })
 ];
 
-// loginController.authenticateToken = function (req, res, next) {
-//   const bearerHeader = req.headers['authorization'];
-//   const bearerToken = bearerHeader && bearerHeader.split(' ')[1];
-//   if (!bearerToken) return res.sendStatus(401);
 
-//   jsonwebtoken.verify(
-//     bearerToken,
-//     process.env.ACCESS_TOKEN_SECRET,
-//     (err, user) => {
-//       if (err) return res.sendStatus(403);
-//       req.user = user;
-//       next();
-//     }
-//   )
-// }
 
 export default authController;

@@ -8,6 +8,18 @@ import asyncHandler from "express-async-handler";
 
 const authorController = {}
 
+authorController.authorizeAuthor = asyncHandler(async (req, res, next) => {
+  const author = await Author.find().byIdOrUser(req.params.id);
+  // does this author exist?
+  if (author === null) 
+    return res.status(404).send('Author not found.');
+  // are you this author?
+  if (author._id.toString() !== req.user.authorId) 
+      return res.status(403).send('You are not this author.');
+  
+  return next();
+})
+
 authorController.getAuthorsArray = asyncHandler(async (req, res, next) => {
   const authors = await Author.find().byParams(req.query).exec();
   res.json(authors.map(author => {

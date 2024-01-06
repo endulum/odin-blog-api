@@ -9,6 +9,18 @@ import asyncHandler from "express-async-handler";
 
 const postController = {};
 
+postController.authorizePostAuthor = asyncHandler(async (req, res, next) => {
+  const post = await Post.find().byIdOrTitle(req.params.id);
+  // does this post exist?
+  if (post === null)
+    return res.status(404).send('Post not found.');
+  // are you the author of this post?
+  if (post.author.toString() !== req.user.authorId)
+    return res.status(403).send('This post does not belong to you.');
+
+  return next();
+})
+
 postController.getPostsArray = asyncHandler(async (req, res, next) => {
   const posts = await Post.find().byParams(req.query).populate('author').exec();
   return res.status(202).json(posts.map(post => {

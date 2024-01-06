@@ -7,6 +7,10 @@ import postController from "../controllers/postController";
 const apiRouter = express.Router();
 
 apiRouter.route('/login')
+  .get(
+    authController.authenticateToken, 
+    authController.checkToken
+  )
   .post(authController.signToken);
 
 apiRouter.route('/authors')
@@ -14,16 +18,31 @@ apiRouter.route('/authors')
 
 apiRouter.route('/author/:id')
   .get(authorController.getAuthor)
-  .put() // edits an author by id, protected
-  .delete(); // deletes an author by id, protected
+  .put(
+    authController.authenticateToken, 
+    authorController.authorizeAuthor
+  )
+  .delete(
+    authController.authenticateToken, 
+    authorController.authorizeAuthor
+  );
 
 apiRouter.route('/posts')
-  .get(postController.getPostsArray);
+  .get(postController.getPostsArray)
+  .post(
+    authController.authenticateToken
+  );
 
 apiRouter.route('/post/:id')
   .get(postController.getPost)
-  .put() // edits a post by id, protected
-  .delete(); // deletes a post by id, protected
+  .put(
+    authController.authenticateToken,
+    postController.authorizePostAuthor
+  )
+  .delete(
+    authController.authenticateToken,
+    postController.authorizePostAuthor
+  );
 
 apiRouter.route('/comment/:id')
   .get() // returns a comment by id
