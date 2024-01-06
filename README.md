@@ -86,9 +86,13 @@ This route returns an authentication token for the new author account, and requi
   "datePosted": "2024-01-01T07:38:07.947+00:00",
   "lastEdited": "2024-01-01T07:38:07.947+00:00",
   "commentIds": [
-    "65926be07b9bf849098c0bf2",
-    "65926be07b9bf849098c0bf6",
-    "65934b7d71073819898ee98d"
+    {
+      "id": "65926be07b9bf849098c0bf2",
+      "commentBy": "Some Commentator",
+      "commentText": "This is a comment. Hopefully it's a nice one.",
+      "datePosted": "2024-01-01T07:38:07.947+00:00"
+    }
+    // ...
   ]
 }
 ```
@@ -97,7 +101,7 @@ This route returns an authentication token for the new author account, and requi
 - `?sortBy=datePosted`: sorts the array by `datePosted`. Other acceptable sort values are `title`, `authorUserName`, `authorDisplayName`, and `commentCount`.
 - `?sortDirection=ascending`: In conjunction with the `sortBy` query, determines whether the array is sorted in `ascending` or `descending` values.
 - `?limit=3`: limits the array length to the first 3 results of the query.
-- `?populateComments=true`: instead of the post object containing a `commentIds` array of ID references to comments, the object contains a `comments` array of fully populated comment objects.
+- `?populateComments=false`: instead of the post object containing a `comments` array of fully populated comment objects, the object contains a `commentIds` array of ID references to comments.
 
 `POST /api/posts` creates a new post object. `PUT /api/post/:id` edits the post object identified by `:id`. Each of these routes require values to be provided:
 - `title`: a string

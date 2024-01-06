@@ -35,10 +35,10 @@ PostSchema.query.byParams = function(params) {
     case 'commentCount': sort.postCount = params.sortDirection; break;
   };
   // combine objects into the resulting query chain
-  if (params.populateComments)
-    return this.find(query).sort(sort).limit(params.limit).populate('comments');
-  else
+  if (params.populateComments === 'false')
     return this.find(query).sort(sort).limit(params.limit);
+  else
+    return this.find(query).sort(sort).limit(params.limit).populate('comments');
 };
 
 export default mongoose.model('Post', PostSchema);
