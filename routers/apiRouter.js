@@ -1,9 +1,11 @@
+import authController from "../controllers/authController";
+
 import express from "express";
 
 const apiRouter = express.Router();
 
 apiRouter.route('/login')
-  .post(); // returns an auth token for use with protected routes
+  .post(authController.signToken); // returns an auth token for use with protected routes
 
 apiRouter.route('/authors')
   .get(); // returns array of authors
