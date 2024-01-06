@@ -23,20 +23,26 @@ RESTful API for a blog setup.
   "displayName": "Some Author Username",
   "bio": "Putting words together to form meaning since '01.",
   "dateJoined": "2024-01-01T07:38:07.947+00:00",
-  "postIds": [
-    "65926bdf7b9bf849098c0be4",
-    "65926bdf7b9bf849098c0be8",
-    "65926be07b9bf849098c0bf0"
+  "posts": [
+    {
+      "id": "65926bdf7b9bf849098c0be4",
+      "title": "Some Article Title",
+      "subtitle": "This is a one-liner meant to be underneath the title.",
+      "datePosted": "2024-01-01T07:38:07.947+00:00"
+    }
+    // ...
   ]
 }
 ```
 `GET /api/authors` returns an array of author objects. Acceptable query keys are:
 - `?displayName=Bob`: filters for any authors whose `displayName` string includes the value `Bob`
 - `?userName=Bob`: filters for any authors whose `userName` string includes the value `Bob`
-- `?sortBy=dateJoined`: sorts the array by `dateJoined`. Other acceptable sort values are `userName`, `displayName`, and `postCount`.
+- `?sortBy=dateJoined`: sorts the array by `dateJoined`. Other acceptable sort values are `userName` and `displayName`.
 - `?sortDirection=ascending`: In conjunction with the `sortBy` query, determines whether the array is sorted in `ascending` or `descending` values.
 - `?limit=3`: limits the array length to the first 3 results of the query.
-- `?populatePosts=true`: instead of the author object containing a `postIds` array of ID references to posts, the object contains a `posts` array of fully populated post objects.
+- `?populatePosts=false`: instead of the author object containing a `posts` array of partially populated post objects, the object contains a `postIDs` array of ID references to posts.
+
+Both `GET /api/authors` and `GET /api/author/:id` also take a query key `?populatePosts`. If set to true,
 
 <!-- `POST /api/authors` creates a new author object. This route requires values to be provided:
 - `username`: a string

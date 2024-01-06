@@ -10,6 +10,8 @@ const AuthorSchema = new Schema({
   posts: [{ type: Schema.ObjectId, ref: 'Post' }],
 });
 
+AuthorSchema.virtual('postCount').get(function() { return this.posts.length });
+
 AuthorSchema.query.byIdOrUser = function(idOrUser) { // for use with GET /api/author/:id
   if (mongoose.isValidObjectId(idOrUser)) 
     return this.findOne({ _id: idOrUser });
@@ -22,7 +24,7 @@ AuthorSchema.query.byParams = function(params) { // for use with GET /api/author
   if (
     !params.sortDirection ||
     !['ascending', 'descending', 'asc', 'desc', -1, 1].includes(params.sortDirection)
-  ) { params.sortDirection = 'ascending' }
+  ) { params.sortDirection = 'asc' }
   // porgramatically build query as an object
   const query = {};
   if (params.displayName) query.displayName = { "$regex": params.displayName, "$options": "i" };
@@ -33,13 +35,12 @@ AuthorSchema.query.byParams = function(params) { // for use with GET /api/author
     case 'dateJoined': sort.dateJoined = params.sortDirection; break;
     case 'userName': sort.userName = params.sortDirection; break;
     case 'displayName': sort.displayName = params.sortDirection; break;
-    case 'postCount': sort.postCount = params.sortDirection; break;
   };
   // combine objects into the resulting query chain
-  if (params.populatePosts)
-    return this.find(query).sort(sort).limit(params.limit).populate('posts');
-  else
+  if (params.populatePosts === "false")
     return this.find(query).sort(sort).limit(params.limit);
-}
+  else
+    return this.find(query).sort(sort).limit(params.limit).populate('posts');
+};
 
 export default mongoose.model('Author', AuthorSchema);

@@ -1,4 +1,5 @@
 import authController from "../controllers/authController";
+import authorController from "../controllers/authorController";
 
 import express from "express";
 
@@ -8,10 +9,10 @@ apiRouter.route('/login')
   .post(authController.signToken); // returns an auth token for use with protected routes
 
 apiRouter.route('/authors')
-  .get(); // returns array of authors
+  .get(authorController.getAuthorsArray); // returns array of authors
 
 apiRouter.route('/author/:id')
-  .get() // returns an author by id
+  .get(authorController.getAuthor) // returns an author by id
   .put() // edits an author by id, protected
   .delete(); // deletes an author by id, protected
 
