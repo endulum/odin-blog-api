@@ -32,7 +32,8 @@ apiRouter.route('/author/:id')
 apiRouter.route('/posts')
   .get(postController.getPostsArray)
   .post(
-    authController.authenticateToken
+    authController.authenticateToken,
+    postController.newPost
   );
 
 apiRouter.route('/post/:id')
@@ -47,6 +48,9 @@ apiRouter.route('/post/:id')
     postController.authorizePostAuthor,
     postController.deletePost
   );
+
+apiRouter.route('/post/:id/comment')
+  .post(postController.newComment);
 
 apiRouter.route('/comment/:id')
   .get() // returns a comment by id

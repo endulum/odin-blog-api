@@ -13,6 +13,33 @@ const sendErrorsIfAny = asyncHandler(async (req, res, next) => {
   else return next();
 });
 
+const validatePostValues = [
+  body('title')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter a title.').bail()
+    .isLength({ min: 2, max: 64 }).withMessage('Post titles must be between 2 and 64 characters long.')
+    .matches(/^[A-Za-z0-9 ]+$/).withMessage('Title contains invalid characters.')
+    .custom(async (value, { req }) => {
+      const existingPost = await Post.findOne({ title: req.body.title });
+      return (existingPost !== null && existingPost._id.toString() !== req.post.id)
+        ? Promise.reject() : true;
+    }).withMessage('A post already exists with this title. Please select another.')
+    .escape(),
+
+  body('subtitle')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter a subtitle.').bail()
+    .isLength({ min: 2, max: 64 }).withMessage('Post subtitles must be between 2 and 64 characters long.')
+    .escape(),
+
+  body('content')
+    .trim()
+    .isLength({ min: 1 }).withMessage('You cannot submit a blank post.')
+    .escape(),
+
+  sendErrorsIfAny
+]
+
 const postController = {};
 
 postController.authorizePostAuthor = asyncHandler(async (req, res, next) => {
@@ -92,32 +119,29 @@ postController.getPost = asyncHandler(async (req, res, next) => {
   });
 });
 
+postController.newPost = [
+  validatePostValues,
+  asyncHandler(async (req, res, send) => {
+    const author = await Author.findById(req.user.authorId);
+    if (author === null)
+      return res.status(404).send('Author not found.');
+
+    const newPost = new Post({
+      author: req.author,
+      title: req.body.title,
+      subtitle: req.body.subtitle,
+      content: req.body.content
+    });
+
+    author.posts.push(newPost);
+    await newPost.save();
+    await author.save();
+    res.sendStatus(200);
+  })
+];
+
 postController.editPost = [
-  body('title')
-    .trim()
-    .isLength({ min: 1 }).withMessage('Please enter a title.').bail()
-    .isLength({ min: 2, max: 64 }).withMessage('Post titles must be between 2 and 64 characters long.')
-    .matches(/^[A-Za-z0-9 ]+$/).withMessage('Title contains invalid characters.')
-    .custom(async (value, { req }) => {
-      const existingPost = await Post.findOne({ title: req.body.title });
-      return (existingPost !== null && existingPost._id.toString() !== req.post.id)
-        ? Promise.reject() : true;
-    }).withMessage('A post already exists with this title. Please select another.')
-    .escape(),
-
-  body('subtitle')
-    .trim()
-    .isLength({ min: 1 }).withMessage('Please enter a subtitle.').bail()
-    .isLength({ min: 2, max: 64 }).withMessage('Post subtitles must be between 2 and 64 characters long.')
-    .escape(),
-
-  body('content')
-    .trim()
-    .isLength({ min: 1 }).withMessage('You cannot submit a blank post.')
-    .escape(),
-
-  sendErrorsIfAny,
-
+  validatePostValues,
   asyncHandler(async (req, res, send) => {
     req.post.title = req.body.title;
     req.post.subtitle = req.body.subtitle;
@@ -152,36 +176,38 @@ postController.deletePost = [
   })
 ];
 
-// postController.newComment = [
-//   body('commenterName')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Please enter your name.').bail()
-//     .isLength({ min: 2, max: 32 }).withMessage('Commenter names must be between 2 and 32 characters long.')
-//     .matches(/^[A-Za-z0-9 .,&-]+$/).withMessage('Commenter name contains invalid characters.')
-//     .escape(),
+postController.newComment = [
+  body('commentBy')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter your name.').bail()
+    .isLength({ min: 2, max: 32 }).withMessage('Commenter names must be between 2 and 32 characters long.')
+    .matches(/^[A-Za-z0-9 .,&-]+$/).withMessage('Commenter name contains invalid characters.')
+    .escape(),
 
-//   body('text')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Please enter a comment.').bail()
-//     .isLength({ min: 2, max: 512 }).withMessage('Comments must be between 2 and 512 characters long.')
-//     .escape(),
+  body('commentText')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter a comment.').bail()
+    .isLength({ min: 2, max: 512 }).withMessage('Comments must be between 2 and 512 characters long.')
+    .escape(),
 
-//   asyncHandler(async (req, res, next) => {
-//     const errorsArray = validationResult(req).array();
-//     const post = await findPost(req.params.id);
-//     if (post === null) errorsArray.push({ msg: 'Post not found.' });
-//     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-//     const newComment = await Comment.create({
-//       post: post._id,
-//       commenterName: req.body.commenterName,
-//       text: req.body.text
-//     });
+  sendErrorsIfAny,
 
-//     post.comments.push(newComment._id);
-//     await post.save();
+  asyncHandler(async (req, res, next) => {
+    const post = await Post.find().byIdOrTitle(req.params.id).exec();
+    if (post === null)
+      res.status(404).send('Post not found.');
 
-//     res.send('Success - go look at database');
-//   })
-// ];
+    const newComment = await Comment.create({
+      post: post._id,
+      commentBy: req.body.commentBy,
+      commentText: req.body.commentText
+    });
+
+    post.comments.push(newComment._id);
+    await post.save();
+
+    res.sendStatus(200);
+  })
+];
 
 export default postController;
