@@ -63,7 +63,8 @@ async function generateContent() {
       bio: lorem.generateSentences(random(5, 2))
     });
 
-    if (i !== 0) for (let j = 0; j < random(8); j++) {
+    // if (i !== 0) 
+    for (let j = 0; j < random(8); j++) {
       const randomPost = await Post.create({
         author: randomAuthor,
         title: lorem.generateWords(random(6, 2)),

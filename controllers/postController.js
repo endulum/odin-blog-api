@@ -3,21 +3,33 @@ import Author from '../models/author';
 import Comment from '../models/comment';
 
 import asyncHandler from "express-async-handler";
-// import { body, validationResult } from 'express-validator';
-// import bcrypt from 'bcryptjs/dist/bcrypt';
+import { body, validationResult } from 'express-validator';
+import bcrypt from 'bcryptjs/dist/bcrypt';
 // import mongoose from 'mongoose';
+
+const sendErrorsIfAny = asyncHandler(async (req, res, next) => {
+  const errorsArray = validationResult(req).array();
+  if (errorsArray.length > 0) return res.status(200).json({ errors: errorsArray });
+  else return next();
+});
 
 const postController = {};
 
 postController.authorizePostAuthor = asyncHandler(async (req, res, next) => {
+  const author = await Author.findById(req.user.authorId);
   const post = await Post.find().byIdOrTitle(req.params.id);
   // does this post exist?
   if (post === null)
     return res.status(404).send('Post not found.');
+  // does the author of this post exist? (it should - if not, that's a problem?)
+  if (author === null)
+    return res.status(404).send('Author of post not found.');
   // are you the author of this post?
   if (post.author.toString() !== req.user.authorId)
     return res.status(403).send('This post does not belong to you.');
 
+  req.author = author;
+  req.post = post;
   return next();
 })
 
@@ -80,124 +92,65 @@ postController.getPost = asyncHandler(async (req, res, next) => {
   });
 });
 
-// postController.newPost = [
-//   loginController.authenticateToken,
+postController.editPost = [
+  body('title')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter a title.').bail()
+    .isLength({ min: 2, max: 64 }).withMessage('Post titles must be between 2 and 64 characters long.')
+    .matches(/^[A-Za-z0-9 ]+$/).withMessage('Title contains invalid characters.')
+    .custom(async (value, { req }) => {
+      const existingPost = await Post.findOne({ title: req.body.title });
+      return (existingPost !== null && existingPost._id.toString() !== req.post.id)
+        ? Promise.reject() : true;
+    }).withMessage('A post already exists with this title. Please select another.')
+    .escape(),
 
-//   body('title')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Please enter a title.').bail()
-//     .isLength({ min: 2, max: 64 }).withMessage('Post titles must be between 2 and 64 characters long.')
-//     .matches(/^[A-Za-z0-9 ]+$/).withMessage('Title contains invalid characters.')
-//     .custom(async (value, { req }) => {
-//       const existingPost = await Post.findOne({ title: req.body.title });
-//       return existingPost === null ? true : Promise.reject()
-//     }).withMessage('A post with this title already exists.')
-//     .escape(),
+  body('subtitle')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter a subtitle.').bail()
+    .isLength({ min: 2, max: 64 }).withMessage('Post subtitles must be between 2 and 64 characters long.')
+    .escape(),
 
-//   body('subtitle')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Please enter a subtitle.').bail()
-//     .isLength({ min: 2, max: 64 }).withMessage('Post subtitles must be between 2 and 64 characters long.')
-//     .escape(),
+  body('content')
+    .trim()
+    .isLength({ min: 1 }).withMessage('You cannot submit a blank post.')
+    .escape(),
 
-//   body('text')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Cannot submit a blank post.')
-//     .escape(),
+  sendErrorsIfAny,
 
-//   asyncHandler(async (req, res, next) => {
-//     const errorsArray = validationResult(req).array();
-//     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-//     // console.log(req.user);
-//     await Post.create({
-//       author: req.user.userId,
-//       title: req.body.title,
-//       subtitle: req.body.subtitle,
-//       text: req.body.text
-//     });
-//     res.send('Success - go look in database');
-//   }),
-// ]
+  asyncHandler(async (req, res, send) => {
+    req.post.title = req.body.title;
+    req.post.subtitle = req.body.subtitle;
+    req.post.content = req.body.content;
+    req.post.lastEdited = Date.now();
+    await req.post.save();
+    res.sendStatus(200)
+  })
+];
 
-// postController.editPost = [
-//   loginController.authenticateToken,
+postController.deletePost = [
+  body('password')
+    .trim()
+    .isLength({ min: 1 }).withMessage('Please enter a password.').bail()
+    .custom(async (value, { req }) => {
+      const match = await bcrypt.compare(value, req.author.password);
+      return match ? true : Promise.reject();
+    }).withMessage('Incorrect password.')
+    .escape(),
 
-//   body('title')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Please enter a title.').bail()
-//     .isLength({ min: 2, max: 64 }).withMessage('Post titles must be between 2 and 64 characters long.')
-//     .matches(/^[A-Za-z0-9 ]+$/).withMessage('Title contains invalid characters.')
-//     .custom(async (value, { req }) => {
-//       const existingPost = await findPost(req.params.id);
-//       return existingPost !== null ? true : Promise.reject();
-//     }).withMessage('Post not found.')
-//     .custom(async (value, { req }) => {
-//       const existingPost = await Post.findOne({ title: req.body.title });
-//       if (existingPost && existingPost.title === req.body.title) {
-//         const thisPost = await findPost(req.params.id);
-//         if (existingPost._id.toString() === thisPost._id.toString()) return true;
-//         return Promise.reject();
-//       } else return true;
-//     }).withMessage('A post with this title already exists.')
-//     .escape(),
+  sendErrorsIfAny,
 
-//   body('subtitle')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Please enter a subtitle.').bail()
-//     .isLength({ min: 2, max: 64 }).withMessage('Post subtitles must be between 2 and 64 characters long.')
-//     .escape(),
-
-//   body('text')
-//     .trim()
-//     .isLength({ min: 1 }).withMessage('Cannot submit a blank post.')
-//     .escape(),
-
-//   asyncHandler(async (req, res, next) => {
-//     const errorsArray = validationResult(req).array();
-//     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-//     const post = await findPost(req.params.id);
-//     if (post.author.toString() !== req.user.userId) return res.send('You are not the author of this post.');
-//     post.title = req.body.title;
-//     post.subtitle = req.body.subtitle;
-//     post.text = req.body.text;
-//     await post.save();
-//     res.send('Success - go look at database');
-//   })
-// ]
-
-// postController.deletePost = [
-//   loginController.authenticateToken,
-
-//   body('password')
-//     .trim()
-//     .custom(async (value, { req }) => {
-//       const post = await findPost(req.params.id);
-//       return post !== null ? true : Promise.reject();
-//     }).withMessage('Post not found.').bail()
-//     .custom(async (value, { req }) => {
-//       const post = await findPost(req.params.id);
-//       return post.author.toString() === req.user.userId.toString() ? true : Promise.reject();
-//     }).withMessage('You are not the author of this post.').bail()
-//     .isLength({ min: 1 }).withMessage('Please input a password.').bail()
-//     .custom(async (value, { req }) => {
-//       const author = await Author.findById(req.user.userId);
-//       const match = await bcrypt.compare(value, author.password);
-//       return match ? true : Promise.reject();
-//     }).withMessage('Incorrect password.')
-//     .escape(),
-
-//   asyncHandler(async (req, res, next) => {
-//     const errorsArray = validationResult(req).array();
-//     if (errorsArray.length > 0) return res.json({ errors: errorsArray });
-//     const post = await findPost(req.params.id);
-//     post.comments.forEach(async commentId => {
-//       const comment = await Comment.findById(commentId);
-//       await Comment.deleteOne(comment)
-//     });
-//     await Post.deleteOne(post);
-//     res.send('Success - go look at the database');
-//   })
-// ]
+  asyncHandler(async (req, res, next) => {
+    req.author.posts = req.author.posts.filter(postId => postId.toString() !== req.post._id.toString());
+    await req.author.save();
+    req.post.comments.forEach(async commentId => {
+      const comment = await Comment.findById(commentId);
+      await Comment.deleteOne(comment)
+    });
+    await Post.deleteOne(req.post);
+    res.sendStatus(200);
+  })
+];
 
 // postController.newComment = [
 //   body('commenterName')

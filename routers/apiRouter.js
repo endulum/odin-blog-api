@@ -39,11 +39,13 @@ apiRouter.route('/post/:id')
   .get(postController.getPost)
   .put(
     authController.authenticateToken,
-    postController.authorizePostAuthor
+    postController.authorizePostAuthor,
+    postController.editPost
   )
   .delete(
     authController.authenticateToken,
-    postController.authorizePostAuthor
+    postController.authorizePostAuthor,
+    postController.deletePost
   );
 
 apiRouter.route('/comment/:id')
