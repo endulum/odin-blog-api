@@ -5,7 +5,6 @@ import Comment from '../models/comment';
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs/dist/bcrypt';
-// import mongoose from 'mongoose';
 
 const sendErrorsIfAny = asyncHandler(async (req, res, next) => {
   const errorsArray = validationResult(req).array();
@@ -95,7 +94,6 @@ postController.getPostsArray = asyncHandler(async (req, res, next) => {
 postController.getPost = asyncHandler(async (req, res, next) => {
   const post = await Post.find().byIdOrTitle(req.params.id).populate('author').populate('comments').exec();
   if (post === null) return res.status(404).send('Post not found.');
-  // todo: find proper way to send error in json?
   return res.status(202).json({
     id: post._id,
     author: {
@@ -148,7 +146,7 @@ postController.editPost = [
     req.post.content = req.body.content;
     req.post.lastEdited = Date.now();
     await req.post.save();
-    res.sendStatus(200)
+    res.sendStatus(200);
   })
 ];
 

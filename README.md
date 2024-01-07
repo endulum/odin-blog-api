@@ -42,8 +42,6 @@ RESTful API for a blog setup.
 - `?limit=3`: limits the array length to the first 3 results of the query.
 - `?populatePosts=false`: instead of the author object containing a `posts` array of partially populated post objects, the object contains a `postIDs` array of ID references to posts.
 
-Both `GET /api/authors` and `GET /api/author/:id` also take a query key `?populatePosts`. If set to true,
-
 <!-- `POST /api/authors` creates a new author object. This route requires values to be provided:
 - `username`: a string
   - between 2 and 32 characters long
@@ -121,18 +119,16 @@ Also, editing a post object will update its `lastEdited` to the current date.
 
 `POST /api/posts`, `PUT /api/post/:id`, and `DELETE /api/post/:id` are protected by token authentication.
 
-### Comments
-`GET /api/comment/:id` returns a single comment object. The `:id` parameter must be the comment's `id`.
-```json
-{
-  "id": "65926be07b9bf849098c0bf2",
-  "postId": "65926bdf7b9bf849098c0be8",
-  "commentBy": "Some Commentator",
-  "commentText": "This is a comment. Hopefully it's a nice one.",
-  "datePosted": "2024-01-01T07:38:07.947+00:00"
-}
-```
-`DELETE /api/comment/:id` deletes the comment object identified by `:id`. This route requires a `password` value to be provided, and it must match the `password` of the comment's post's author for deletion to occur. This route is protected by token authentication.
+#### Comments Under Posts
+`POST /api/post/:id/comment` creates a new comment object under the post identified by `:id`. This route requires values to be provided:
+- `commentBy`: a string
+  - between 2 and 32 characters long
+  - consisting of only alphabetical letters, numbers, spaces, and certain punctuation[^2]
+- `commentText`: a string
+  - between 2 and 512 characters long
+  - consisting of only alphabetical letters, numbers, spaces, and certain punctuation[^2]
+
+`DELETE /api/post/:id/comment/:commentId` deletes the comment object identified by `:commentId`. This route is protected by token authentication, and the post this comment is under must belong to the currently logged in author.
 
 ## Nice-to-haves
 ### Invite System
@@ -141,4 +137,5 @@ Currently there is no way for clients to "sign up" for their own author accounts
 Currently all post objects can be fetched by the API through `GET` requests regardless of authentication. Adding a `isVisible` property to post objects can allow "unpublished" posts to be filtered out in `GET` requests that are not provided an authentication token.
 
 [^1] todo: make the frontend repo and link it here
+
 [^2] todo: describe with regex patterns

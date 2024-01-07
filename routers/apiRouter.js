@@ -1,8 +1,8 @@
 import authController from "../controllers/authController";
 import authorController from "../controllers/authorController";
+import postController from "../controllers/postController";
 
 import express from "express";
-import postController from "../controllers/postController";
 
 const apiRouter = express.Router();
 
@@ -58,9 +58,5 @@ apiRouter.route('/post/:id/comment/:commentId')
     postController.authorizePostAuthor,
     postController.deleteComment
   );
-
-apiRouter.route('/comment/:id')
-  .get() // returns a comment by id
-  .delete(); // deletes a comment by id, protected
 
 export default apiRouter;

@@ -69,6 +69,4 @@ authController.signToken = [
   })
 ];
 
-
-
 export default authController;

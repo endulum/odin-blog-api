@@ -58,7 +58,6 @@ authorController.getAuthorsArray = asyncHandler(async (req, res, next) => {
 authorController.getAuthor = asyncHandler(async (req, res, next) => {
   const author = await Author.find().byIdOrUser(req.params.id).populate('posts').exec();
   if (author === null) return res.status(404).send('Author not found.'); 
-  // todo: find proper way to send error in json?
   return res.json({
     id: author._id,
     userName: author.userName,
