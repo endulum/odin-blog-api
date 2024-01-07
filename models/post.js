@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const  PostSchema = new Schema({
-  author: { type: Schema.ObjectId, ref: 'Author' },
+  author: { type: Schema.ObjectId, ref: 'Author', required: true },
   title: { type: String, required: true, minLength: 2, maxLength: 64 },
   subtitle: { type: String, required: true, minLength: 2, maxLength: 128 },
   content: { type: String, required: true, minLength: 2, maxLength: 4096 },

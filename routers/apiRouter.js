@@ -52,6 +52,13 @@ apiRouter.route('/post/:id')
 apiRouter.route('/post/:id/comment')
   .post(postController.newComment);
 
+apiRouter.route('/post/:id/comment/:commentId')
+  .delete(
+    authController.authenticateToken,
+    postController.authorizePostAuthor,
+    postController.deleteComment
+  );
+
 apiRouter.route('/comment/:id')
   .get() // returns a comment by id
   .delete(); // deletes a comment by id, protected

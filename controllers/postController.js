@@ -127,7 +127,7 @@ postController.newPost = [
       return res.status(404).send('Author not found.');
 
     const newPost = new Post({
-      author: req.author,
+      author,
       title: req.body.title,
       subtitle: req.body.subtitle,
       content: req.body.content
@@ -209,5 +209,18 @@ postController.newComment = [
     res.sendStatus(200);
   })
 ];
+
+postController.deleteComment = asyncHandler(async (req, res, next) => {
+  const comment = await Comment.find().byIdOrNull(req.params.commentId);
+  if (comment === null)
+    return res.status(404).send('Comment not found.');
+
+  req.post.comments = req.post.comments.filter(commentId => commentId.toString() !== req.params.commentId);
+  await req.post.save();
+
+  await Comment.deleteOne(comment);
+  
+  res.sendStatus(200);
+});
 
 export default postController;

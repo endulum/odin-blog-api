@@ -8,4 +8,10 @@ const CommentSchema = new Schema({
   datePosted: { type: Date, default: () => Date.now(), immutable: true },
 });
 
+CommentSchema.query.byIdOrNull = function(id) {
+  if (mongoose.isValidObjectId(id)) 
+    return this.findOne({ _id: id });
+  else return null;
+}
+
 export default mongoose.model('Comment', CommentSchema);
